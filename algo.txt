@@ -1,0 +1,11 @@
+if Municipalite == Null:
+	print('Choix municipalité')
+
+Attente reception EventHandler
+
+if cam:
+	interpréter image pour avoir code barre et donc code EAN
+	chercher correspondance dans la BDD pour connaitre la poubelle
+	affichage poubelle
+else if boutonmenu:
+	afficher option menu
