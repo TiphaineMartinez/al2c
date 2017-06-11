@@ -1,6 +1,9 @@
 #!/usr/bin/python
-import time
+from time import sleep
+from picamera import PiCamera
 
-print('hey')    
-time.sleep(5)
-print('hey') 
+camera = PiCamera()
+camera.resolution(1024, 768)
+camera.start_preview()
+sleep(2)
+camera.capture('cam.jpg')
