@@ -5,73 +5,102 @@ import zbar
 import Image
 import sqlite3
 
-# Load config
-municipalite = open('./config.txt', 'r')
-myMunicipalite = municipalite.read()
-print myMunicipalite
-municipalite.close()
+def initialize():
+    # Load config
+    municipalite = open('/home/pi/treasy/config.txt', 'r')
+    global myMun
+    global idMun
+    myMun = municipalite.read()
+    print myMun
+    municipalite.close()
 
-# open DB
-conn = sqlite3.connect('./BD/Treasy_DB')
-cursor = conn.cursor()
+    # open DB
+    global conn
+    global cursor
+    conn = sqlite3.connect('/home/pi/treasy/BD/Treasy_DB')
+    cursor = conn.cursor()
 
-if myMunicipalite == '' or myMunicipalite is None:
-    print('plop')
-    # Creation processus menu
-else :
-    requestMun = """SELECT idMun FROM Municipalite WHERE ville=?"""
-    idMun = 0
-    cursor.execute(requestMun, (myMunicipalite,))
-    rows = cursor.fetchall()
-    for row in rows :
-        idMun = row[0]
-        print "%d" % (row[0])
-    print idMun
-        
-#Camera
-camera = PiCamera()
-#camera.resolution(1024, 768)
-camera.start_preview()
-sleep(10)
-camera.capture('cam.jpg')
+    # Recover municipality id in database
+    if myMun == '' or myMun is None:
+        print('plop')
+        # Creation processus menu
+    else :
+        requestMun = """SELECT idMun FROM Municipalite WHERE ville=?"""
+        idMun = 0
+        cursor.execute(requestMun, (myMun,))
+        rows = cursor.fetchall()
+        for row in rows :
+            idMun = row[0]
+            print "%d" % (row[0])
+        print idMun
 
-img = "cam.jpg"
 
-# create a reader
-scanner = zbar.ImageScanner()
+def barcodeReader():
+    global barcode
+    #Camera
+    camera = PiCamera()
 
-# configure the reader
-scanner.parse_config('enable')
+    while (barcode == ""):
 
-# obtain image data
-pil = Image.open(img).convert('L')
-width, height = pil.size
-raw = pil.tostring()
+        #camera.resolution(1024, 768)
+        camera.start_preview()
+        sleep(2)
+        camera.capture('/home/pi/treasy/cam.jpg')
 
-# wrap image data
-image = zbar.Image(width, height, 'Y800', raw)
-print image
-# scan the image for barcodes
-scanner.scan(image)
+        img = "/home/pi/treasy/cam.jpg"
 
-# Prepare request
-request = """SELECT Poubelle.couleurPoub FROM Poubelle, Trie, EstFait WHERE Poubelle.idPoub = Trie.idPoub AND Trie.identifiantMat = EstFait.identifiantMat AND Trie.idMun=? AND EstFait.EAN = ?"""
-#request2 = """SELECT Produit.nomP FROM Produit WHERE EAN=?"""
-#request3 = """SELECT EstFait.identifiantMat FROM EstFait WHERE EstFait.EAN=?"""
+        # create a reader
+        scanner = zbar.ImageScanner()
 
-# extract results
-for symbol in image:
-    # do something useful with results
-    print 'decoded', symbol.type, 'symbol', '"%s"' % symbol.data
-    # find barcode in DB
-    cursor.execute(request , (idMun, symbol.data))
-    rows = cursor.fetchall()
-    for row in rows:
-        print('{0}'.format(row[0]))
+        # configure the reader
+        scanner.parse_config('enable')
+
+        # obtain image data
+        pil = Image.open(img).convert('L')
+        width, height = pil.size
+        raw = pil.tostring()
+
+        # wrap image data
+        image = zbar.Image(width, height, 'Y800', raw)
+        print image
+        # scan the image for barcodes
+        scanner.scan(image)
+
+        # Prepare request
+        request = "SELECT Poubelle.couleurPoub FROM Poubelle, Trie, EstFait WHERE Poubelle.idPoub = Trie.idPoub AND Trie.identifiantMat = EstFait.identifiantMat AND Trie.idMun=? AND EstFait.EAN = ?"
+
+        # extract results
+        for symbol in image:
+            # do something useful with results
+            print 'decoded', symbol.type, 'symbol', '"%s"' % symbol.data
+            # find barcode in DB
+            cursor.execute(request , (idMun, symbol.data))
+            rows = cursor.fetchall()
+            for row in rows:
+                print('{0}'.format(row[0]))
+                barcode = row[0]
+            del(image)
+    
+
+myMun = ""
+idMun = ""
+conn = ""
+cursor = ""
+
+
+initialize()
+print "test idMun"
+print idMun
+
+
+barcode = ""
+barcodeReader()
+print "test boucle2"
+print barcode
 
 # clean up
 conn.close()
-del(image)
+
 
 
 

@@ -28,7 +28,7 @@ sqlite3 Treasy_DB "insert  into Matiere (identifiantMat ,nomMat) values (25,'Alu
 sqlite3 Treasy_DB "insert  into Matiere (identifiantMat ,nomMat) values (26,'Polystyrène');"
 sqlite3 Treasy_DB "insert  into Matiere (identifiantMat ,nomMat) values (27,'PET opaque');"
 
-sqlite3 Treasy_DB "insert into Poubelle (idPoub ,couleurPoub) values (1, 'Bac bleu');"
+sqlite3 Treasy_DB "insert into Poubelle (idPoub ,couleurPoub) values (1, 'Poubelle bleue');"
 sqlite3 Treasy_DB "insert  into Poubelle (idPoub ,couleurPoub) values (2, 'Poubelle grise');"
 sqlite3 Treasy_DB "insert  into Poubelle (idPoub ,couleurPoub) values (3, 'Poubelle bleue');"
 sqlite3 Treasy_DB "insert  into Poubelle (idPoub ,couleurPoub) values (4, 'Poubelle jaune');"
